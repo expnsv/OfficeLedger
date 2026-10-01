@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; base-uri 'none'; object-src 'none'">
+  <meta name="referrer" content="no-referrer">
+  <title>Export previous OfficeLedger data</title>
+  <link rel="stylesheet" href="legacy-export.css">
+  <script defer src="js/legacy-export.js"></script>
+</head>
+<body>
+  <main class="card">
+    <div class="brand">OfficeLedger · Local data export</div>
+    <h1>Save your previous accounting data</h1>
+    <p>This page reads the old OfficeLedger database from this browser profile and creates a JSON backup on your device. It does not upload anything.</p>
+    <button id="exportButton" type="button">Export previous data</button>
+    <p id="status" role="status" aria-live="polite">Ready.</p>
+    <p class="hint">Open this page in the same browser profile and at the same local file or website origin where you used the browser-only OfficeLedger app.</p>
+  </main>
+</body>
+</html>

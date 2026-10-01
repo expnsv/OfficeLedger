@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f3f6f4">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://*.supabase.co wss://*.supabase.co; form-action 'self'; base-uri 'none'; object-src 'none'">
+  <meta name="referrer" content="no-referrer">
+  <title>OfficeLedger — Accounting & expenses</title>
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.109.0"></script>
+  <script defer src="js/config.js"></script>
+  <script defer src="js/db.js"></script>
+  <script defer src="js/permissions.js"></script>
+  <script defer src="js/accounting.js"></script>
+  <script defer src="js/forms.js"></script>
+  <script defer src="js/auth.js"></script>
+  <script defer src="js/reports.js"></script>
+  <script defer src="js/app.js"></script>
+</head>
+<body>
+  <div id="authScreen" class="auth-screen" hidden>
+    <div class="auth-brand"><div class="brand-icon">OL</div><span>OfficeLedger</span></div>
+    <section id="loginCard" class="auth-card" hidden>
+      <div class="auth-eyebrow">Secure sign in</div><h1>Welcome back</h1>
+      <p class="auth-copy">Sign in with the email and password from your OfficeLedger invitation.</p>
+      <form id="loginForm" class="auth-form">
+        <label>Email<input name="email" type="email" required maxlength="254" autocomplete="username"></label>
+        <label>Password<input name="password" required maxlength="128" type="password" autocomplete="current-password"></label>
+        <div id="loginError" class="form-alert" role="alert" hidden></div>
+        <button class="btn primary full" type="submit">Sign in</button>
+      </form>
+      <div class="auth-foot">Ask your Admin to send an invitation or password reset email.</div>
+    </section>
+    <div class="local-note">Shared accounting workspace · Supabase Auth and Postgres</div>
+  </div>
+
+  <div id="appShell" class="app-shell" hidden>
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-brand"><div class="brand-icon">OL</div><div><strong>OfficeLedger</strong><small>Accounting workspace</small></div><button id="mobileClose" class="icon-btn mobile-close" aria-label="Close menu">×</button></div>
+      <div class="workspace-label">WORKSPACE</div>
+      <nav class="side-nav" aria-label="Main navigation">
+        <button class="nav-item active" data-view="dashboard"><span class="nav-icon">◫</span>Dashboard</button>
+        <button class="nav-item admin-only" data-view="employees"><span class="nav-icon">♙</span>Employees</button>
+        <div class="nav-group-title">ACCOUNTING</div>
+        <div id="categoryNav" class="category-nav"></div>
+        <div class="nav-divider"></div>
+        <button class="nav-item" data-view="ledger"><span class="nav-icon">▤</span>Accounting ledger</button>
+        <button class="nav-item" data-view="reports"><span class="nav-icon">▥</span>Reports</button>
+        <button class="nav-item admin-only" data-view="audit"><span class="nav-icon">◷</span>Audit history</button>
+        <button class="nav-item admin-only" data-view="settings"><span class="nav-icon">⚙</span>Settings</button>
+      </nav>
+      <div class="sidebar-bottom"><div class="sidebar-storage"><span class="storage-dot"></span><span>Synced to shared database</span></div><button id="logoutBtn" class="logout-btn"><span class="nav-icon">↪</span>Sign out</button></div>
+    </aside>
+    <div id="mobileShade" class="mobile-shade"></div>
+    <main class="main-area">
+      <header class="topbar">
+        <button id="mobileMenu" class="icon-btn mobile-menu" aria-label="Open menu">☰</button>
+        <div class="breadcrumb"><span>Office</span><span class="crumb-sep">/</span><strong id="crumbCurrent">Dashboard</strong></div>
+        <div class="topbar-right">
+          <label class="global-search"><span>⌕</span><input id="globalSearch" type="search" placeholder="Search records…" aria-label="Search all records"><kbd>Ctrl K</kbd></label>
+          <button id="quickAddBtn" class="btn primary quick-add">＋ <span>New entry</span></button>
+          <div class="profile"><div id="avatar" class="avatar">A</div><div class="profile-text"><strong id="profileName">Admin</strong><small id="profileRole">Admin</small></div><button id="profileMenuBtn" class="profile-menu-btn" aria-label="Sign out">⌄</button></div>
+        </div>
+      </header>
+
+      <div class="content-wrap">
+        <section class="view active" id="view-dashboard"></section>
+        <section class="view" id="view-category"></section>
+        <section class="view" id="view-ledger"></section>
+        <section class="view" id="view-employees"></section>
+        <section class="view" id="view-reports"></section>
+        <section class="view" id="view-audit"></section>
+        <section class="view" id="view-settings"></section>
+      </div>
+    </main>
+  </div>
+
+  <dialog id="recordDialog" class="modal wide-modal">
+    <form id="recordForm">
+      <div class="modal-head"><div><span class="modal-eyebrow">ACCOUNTING ENTRY</span><h2 id="recordModalTitle">New accounting entry</h2><p id="recordModalSubtitle">Record a new transaction in the ledger.</p></div><button type="button" class="icon-btn modal-close" data-close="recordDialog" aria-label="Close">×</button></div>
+      <div class="modal-body"><div id="recordFields" class="form-grid"></div><div id="recordError" class="form-alert" role="alert" hidden></div>
+        <div class="modal-footer"><span id="recordAuditHint" class="modal-hint">Changes are saved to the audit history.</span><div><button class="btn" type="button" data-close="recordDialog">Cancel</button><button class="btn primary" type="submit">Save entry</button></div></div>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="userDialog" class="modal">
+    <form id="userForm"><div class="modal-head"><div><span class="modal-eyebrow">EMPLOYEE ACCESS</span><h2 id="userModalTitle">Invite employee</h2><p>Send an account invitation to an employee.</p></div><button type="button" class="icon-btn modal-close" data-close="userDialog" aria-label="Close">×</button></div>
+      <div class="modal-body"><div class="form-grid">
+        <label class="field">Full name<input name="name" required maxlength="80"></label>
+        <label class="field">Email address<input name="email" type="email" required maxlength="254" autocomplete="email"></label>
+      </div><div id="userError" class="form-alert" role="alert" hidden></div><div class="modal-footer"><span class="modal-hint">Employee permissions cannot delete accounting records.</span><div><button class="btn" type="button" data-close="userDialog">Cancel</button><button class="btn primary" type="submit">Send invitation</button></div></div></div>
+    </form>
+  </dialog>
+
+  <dialog id="passwordDialog" class="modal">
+    <form id="passwordForm"><div class="modal-head"><div><span class="modal-eyebrow">ACCOUNT SECURITY</span><h2 id="passwordModalTitle">Change password</h2><p id="passwordModalCopy">Choose a new password with at least 12 characters. Passwords expire every 30 days.</p></div><button type="button" class="icon-btn modal-close" data-close="passwordDialog" aria-label="Close">×</button></div>
+      <div class="modal-body"><div class="form-grid"><label id="passwordCurrentRow" class="field full">Current password<input name="current" required type="password" autocomplete="current-password"></label><label class="field full">New password<input name="next" required minlength="12" maxlength="128" type="password" autocomplete="new-password"></label></div><div id="passwordError" class="form-alert" role="alert" hidden></div><div class="modal-footer"><span class="modal-hint">Use 12–128 characters. Passwords expire every 30 days. Password values are never added to audit history.</span><div><button class="btn" type="button" data-close="passwordDialog">Cancel</button><button id="passwordSaveBtn" class="btn primary" type="submit">Update password</button></div></div></div>
+    </form>
+  </dialog>
+
+  <dialog id="confirmDialog" class="modal confirm-modal">
+    <div class="modal-head"><div><span class="modal-eyebrow">CONFIRM ACTION</span><h2 id="confirmTitle">Archive entry?</h2><p id="confirmMessage">The record will stay in audit history.</p></div><button type="button" class="icon-btn modal-close" data-close="confirmDialog" aria-label="Close">×</button></div>
+    <div class="modal-body"><div class="modal-footer"><span class="modal-hint">This action is recorded.</span><div><button id="confirmCancel" class="btn" type="button">Cancel</button><button id="confirmAccept" class="btn danger" type="button">Archive record</button></div></div></div>
+  </dialog>
+  <div id="toastRegion" class="toast-region" aria-live="polite" aria-atomic="true"></div>
+</body>
+</html>
