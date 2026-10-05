@@ -1,0 +1,636 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SAGT • Professional A4 Survey Report Studio</title>
+<style>
+:root{
+  --navy:#10283f;--navy-2:#173a5a;--blue:#2f6ea6;--blue-soft:#eaf2fa;
+  --ink:#16212b;--muted:#687786;--line:#d9e0e7;--panel:#f7f9fb;--surface:#fff;
+  --success:#157347;--danger:#a52828;--warn:#946200;--shadow:0 8px 24px rgba(16,40,63,.08);
+  --a4-w:793.7008px;--a4-h:1122.5197px;--a4-scale:1;--a4-dw:793.7008px;--a4-dh:1122.5197px;
+  --top:56.6929px;--right:56.6929px;--bottom:56.6929px;--left:56.6929px;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;overflow:hidden}
+body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:#eef2f6;color:var(--ink)}
+button,input,select{font:inherit}
+button{border:0;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,[contenteditable=true]:focus-visible{outline:2px solid #6ea4d1;outline-offset:2px}
+.header{height:64px;background:linear-gradient(135deg,var(--navy),#1a3e60);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 18px;gap:16px}
+.brand-wrap{min-width:0}.brand{font-weight:900;letter-spacing:.25px;font-size:15px}.brand-sub{font-size:10px;opacity:.75;margin-top:2px}
+.status{min-width:0;max-width:48%;font-size:11px;font-weight:800;text-align:right;line-height:1.3;color:#d8e9f8}
+.status.error{color:#ffd3d3}.status.success{color:#d8f4df}
+.app{height:calc(100vh - 64px);display:grid;grid-template-columns:20% 60% 20%;overflow:hidden}
+.panel,.preview-panel{min-width:0;min-height:0;height:100%;overflow:auto;overscroll-behavior:contain;scrollbar-gutter:stable}
+.panel{background:var(--panel);padding:14px}.left-panel{border-right:1px solid var(--line)}.right-panel{border-left:1px solid var(--line)}
+.preview-panel{background:#edf1f5;padding:12px 14px;border-left:1px solid #dfe5eb;border-right:1px solid #dfe5eb}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px;box-shadow:var(--shadow)}
+.card:last-child{margin-bottom:0}.card h3{margin:0 0 9px;font-size:11px;letter-spacing:.65px;text-transform:uppercase;color:#2a4256}.card p{margin:0;font-size:9px;line-height:1.45;color:var(--muted)}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}.actions .full{grid-column:1/-1}
+.btn{padding:9px 10px;border-radius:8px;font-weight:850;font-size:10.5px;transition:.15s ease}.btn:hover{transform:translateY(-1px)}
+.btn-primary{background:var(--navy-2);color:#fff}.btn-secondary{background:#eaf0f5;color:#25445f}.btn-danger{background:#fdeeee;color:#9a2222}.btn-ghost{background:transparent;border:1px solid var(--line);color:#35516b}
+.btn-small{padding:8px 7px;font-size:9.5px}
+.note{font-size:8.5px;color:var(--muted);line-height:1.4;margin-top:7px}.help{display:block;margin-top:6px}
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}.field label{font-size:9.5px;font-weight:800;color:#5c6b79}.field input,.field select{width:100%;height:33px;border:1px solid #cbd4dc;border-radius:8px;background:#fff;padding:7px 8px;color:var(--ink);font-size:10.5px}.field input[type=color]{padding:3px}.field input[type=range]{padding:0;height:22px}.grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:4px 7px;border-radius:999px;background:#eef4f9;color:#365773;font-size:8.5px;font-weight:850}.badge.on{background:#e8f6ed;color:#1b7040}.badge.off{background:#f2f4f6;color:#7b8792}
+.divider{height:1px;background:var(--line);margin:10px 0}
+.file-row{display:flex;gap:7px;align-items:center}.file-row input[type=file]{display:none}.file-name{flex:1;min-width:0;font-size:9px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.range-row{display:flex;align-items:center;justify-content:space-between;gap:7px}.range-value{font-size:8.5px;color:#6e7e8c;font-weight:800;min-width:34px;text-align:right}
+.selected-note{font-size:8.5px;color:var(--muted);min-height:18px;line-height:1.35}
+.style-btns{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:7px}.style-btns .btn{padding:8px 4px}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 0}.toggle-label{font-size:9.5px;font-weight:800;color:#516171}.switch{position:relative;width:38px;height:20px;flex:0 0 auto}.switch input{opacity:0;width:0;height:0}.slider{position:absolute;inset:0;background:#c8d0d8;border-radius:999px;cursor:pointer}.slider:before{content:"";position:absolute;width:16px;height:16px;left:2px;top:2px;background:#fff;border-radius:50%;transition:.18s;box-shadow:0 1px 3px #0002}.switch input:checked+.slider{background:#2f6ea6}.switch input:checked+.slider:before{transform:translateX(18px)}
+.preview-toolbar{height:42px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 2px 8px}.toolbar-group{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.toolbar-label{font-size:9px;font-weight:900;color:#667482}.zoom-chip{padding:5px 8px;border:1px solid var(--line);background:#fff;border-radius:7px;font-size:8.5px;font-weight:850;color:#446078;cursor:pointer}.zoom-chip.active{background:#173a5a;color:#fff;border-color:#173a5a}
+.a4-stage{width:100%;display:flex;justify-content:center;align-items:flex-start;padding:6px 0 30px}.a4-shell{width:var(--a4-dw);height:var(--a4-dh);position:relative;flex:0 0 auto}.report-frame{width:var(--a4-w);height:auto;transform:scale(var(--a4-scale));transform-origin:top left}.report{box-sizing:border-box;position:relative;width:var(--a4-w);height:var(--a4-h);min-height:var(--a4-h);padding:var(--top) var(--right) var(--bottom) var(--left);background:#fff;color:#111;overflow:hidden;font-family:Arial,Helvetica,sans-serif;box-shadow:0 8px 35px rgba(17,35,54,.16)}
+.report-bg{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}.report-watermark{position:absolute;display:none;object-fit:contain;transform:translate(-50%,-50%);max-width:none;user-select:none}
+.report-content{position:static;z-index:1}.letterhead{min-height:112px;border-bottom:2px solid #7890a2;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;margin-bottom:16px;padding:5px 8px 8px;position:relative}.letterhead-logo{position:absolute;left:0;top:0;width:16mm;height:16mm;display:none;object-fit:contain;margin:0}.letterhead-name{font-family:Arial,Helvetica,sans-serif;font-size:25px;font-weight:700;letter-spacing:.45px;color:#163a60}.letterhead-line,.letterhead-contact{font-family:Calibri,"Segoe UI",Arial,sans-serif;font-size:12px;color:#43525e;line-height:1.25;margin-top:2px;max-width:690px}.refno{position:absolute;right:8mm;top:8mm;z-index:50;display:block;visibility:visible;min-width:42mm;font-family:Calibri,"Segoe UI",Arial,sans-serif;font-size:12px;font-weight:700;color:#55616c;background:#fff;padding:1px 2px;line-height:1.2;text-align:right;white-space:nowrap;pointer-events:auto}.refno-label{display:inline}.refno-value{display:inline;margin-left:2px}.title{font-family:Arial,Helvetica,sans-serif;text-align:center;font-size:18px;font-weight:800;letter-spacing:.25px;color:#163a60;margin:0 0 15px}
+.class-details-output,.details{border:1px solid #d5dce3;background:#fff}.class-details-output{margin:0 36px 15px}.class-details-table,.details{font-family:Calibri,"Segoe UI",Arial,sans-serif;display:grid;grid-template-columns:minmax(88px,1fr) 18px minmax(110px,1.25fr) minmax(88px,1fr) 18px minmax(110px,1.25fr);font-size:12px;line-height:1.2}.class-details-table>*{padding:5px 6px;border-bottom:1px solid #d5dce3;min-width:0}.class-details-table>*:nth-last-child(-n+6){border-bottom:0}.class-details-table .label,.details .label,.class-details-table .colon,.details .colon{background:#f3f5f7}.class-details-table .label,.details .label{font-size:14px;font-weight:800;color:#2c3b48}.class-details-table .colon,.details .colon{font-size:12px;text-align:center;color:#6c7882}.class-details-table .value,.details .value{overflow-wrap:anywhere;word-break:break-word}.details{margin:0 36px 16px}.details>*{padding:5px 6px;border-bottom:1px solid #d5dce3}.details>*:nth-last-child(-n+6){border-bottom:0}
+.section-title,.coords-title,.boundary-title{font-size:16px;font-weight:850;color:#163a60;letter-spacing:.15px}.section-title{margin:8px 0 5px}.data-tables{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;align-items:start;margin-top:7px}.table-block{min-width:0}.coords-title,.boundary-title{text-align:center;margin:0 0 5px}.resizable-table{width:100%;border-collapse:collapse;table-layout:auto;font-family:Calibri,"Segoe UI",Arial,sans-serif;font-size:12px}.resizable-table th,.resizable-table td{border:1px solid #bfc8d1;min-height:22px;height:auto;padding:3px 4px;text-align:center;vertical-align:middle;white-space:normal;overflow-wrap:anywhere;word-break:break-word;line-height:1.2}.resizable-table th{font-size:14px;font-weight:700;background:#f2f4f6;color:#2b3a48}.resizable-table [contenteditable=true]{cursor:text;outline:none}
+.observations{font-size:12px;line-height:1.45;text-align:center;overflow-wrap:anywhere}.obs p{margin:0 auto 6px;max-width:690px}.declaration{font-size:12px;font-weight:700;line-height:1.4;text-align:center;margin:12px auto 0;max-width:690px;overflow-wrap:anywhere}.document-end{display:block;margin-top:16px;min-height:50mm;page-break-inside:avoid}.verification{position:absolute;inset:0;width:auto;height:auto;text-align:center;background:transparent;border:0;border-radius:0;padding:0;page-break-inside:avoid;z-index:10;pointer-events:none}.verification .qr{position:absolute;right:var(--qr-right,15mm);bottom:var(--qr-bottom,15mm);margin:0}.signature-area{display:none}.qr{display:block;width:25mm;height:25mm;margin:0 auto 4px;background:#fff;image-rendering:pixelated;image-rendering:crisp-edges}.verified{font-family:Arial,Helvetica,sans-serif;font-size:8px;font-weight:900;letter-spacing:.3px;color:#173a5a}.vcode{font-family:Arial,Helvetica,sans-serif;font-size:8px;font-weight:900;margin-top:3px;word-break:break-all}.vfirm,.vsign,.vstatus{font-family:Arial,Helvetica,sans-serif;font-size:8px;font-weight:700;margin-top:2px;line-height:1.15;display:none}.verification .verified,.verification .vcode,.verification .vfirm,.verification .vsign{position:absolute;right:var(--qr-right,15mm);width:25mm;text-align:center}.verification .verified{bottom:calc(var(--qr-bottom,15mm) - 8mm);line-height:1.15}.verification .vcode{bottom:calc(var(--qr-bottom,15mm) - 13mm);line-height:1.15}.verification .vfirm{bottom:calc(var(--qr-bottom,15mm) - 18mm);line-height:1.15}.verification .vsign{bottom:calc(var(--qr-bottom,15mm) - 23mm);line-height:1.15}
+.report [contenteditable=true]{cursor:text;outline:none}.report [contenteditable=true]:focus{background:rgba(245,250,255,.9);box-shadow:inset 0 0 0 1px #6c97bb;border-radius:3px}.report [data-selected=true]{box-shadow:inset 0 0 0 2px #7098b9!important}
+.empty-state{padding:8px;border:1px dashed #ccd5dd;border-radius:8px;color:#7a8792;font-size:8.5px;line-height:1.4}
+@media(max-width:1100px){.card{padding:10px}.panel,.preview-panel{padding:10px}}
+@media(max-width:850px){.brand{font-size:13px}.status{font-size:9px}}
+</style>
+</head>
+<body>
+<header class="header">
+  <div class="brand-wrap"><div class="brand">SHREE ADITYA GEO TECH • A4 DOCUMENT STUDIO</div><div class="brand-sub">Professional three-panel editor • direct A4 editing • JSON • QR • flattened PDF</div></div>
+  <div class="status" id="status" aria-live="polite"></div>
+</header>
+
+<div class="app">
+  <aside class="panel left-panel" aria-label="Document features">
+    <div class="card">
+      <h3>Document Workflow</h3>
+      <div class="actions">
+        <button class="btn btn-secondary" id="saveDraft">Save Draft</button>
+        <button class="btn btn-secondary" id="clearDraft">Clear Draft</button>
+        <button class="btn btn-ghost full" id="reset">Reset Document</button>
+      </div>
+      <p class="note">Text is edited on the A4 page only. DOCUMENT NO. and REPORT NO. are independent identifiers.</p>
+    </div>
+
+    <div class="card">
+      <h3>JSON Project File</h3>
+      <div class="actions">
+        <button class="btn btn-secondary" id="exportJson">Export JSON</button>
+        <label class="btn btn-secondary" for="importJson" style="text-align:center">Import JSON</label>
+      </div>
+      <input id="importJson" type="file" accept="application/json,.json" style="display:none">
+      <div class="file-row" style="margin-top:7px"><span class="badge" id="jsonVersionBadge">JSON V2</span><span class="file-name" id="jsonFileName">No file selected</span></div>
+      <p class="note">Exports the complete editable document, layout, field styles, branding and verification state in one portable file.</p>
+    </div>
+
+    <div class="card">
+      <h3>Validation &amp; Output</h3>
+      <div class="actions">
+        <button class="btn btn-secondary" id="validate">Validate</button>
+        <button class="btn btn-secondary" id="generateQr">Generate QR</button>
+        <button class="btn btn-primary full" id="generatePdf">Generate Flattened A4 PDF</button>
+      </div>
+      <div class="divider"></div>
+      <div class="file-row"><span class="badge off" id="qrStatusBadge">QR not generated</span><span class="file-name" id="qrInfo">25 × 25 mm • right 15 mm • bottom 15 mm • verification text below QR</span></div>
+      <p class="note">PDF export rasterizes each A4 page into an image inside the PDF, so the exported text is not selectable. The QR is regenerated from the current A4 content and contains compact vital verification information.</p>
+    </div>
+
+    <div class="card">
+      <h3>Coordinate Rows</h3>
+      <div class="actions"><button class="btn btn-secondary" id="addCoord">Add Point</button><button class="btn btn-danger" id="removeCoord">Remove Last</button></div>
+      <p class="note">Coordinates are edited directly in the A4 table.</p>
+    </div>
+
+    <div class="card">
+      <h3>Generation Notes</h3>
+      <div class="empty-state">A4 physical page: 210 × 297 mm<br>Default margins: 15 / 15 / 15 / 15 mm<br>QR: 25 × 25 mm • Right 15 / Bottom 15 mm • negative offsets allowed</div>
+    </div>
+  </aside>
+
+  <main class="preview-panel" aria-label="A4 live preview and direct editor">
+    <div class="preview-toolbar">
+      <div class="toolbar-group"><span class="toolbar-label">A4 PREVIEW</span><span class="badge on" id="editModeBadge">DIRECT EDITING</span></div>
+      <div class="toolbar-group">
+        <button class="zoom-chip" data-zoom="fit">Fit</button><button class="zoom-chip" data-zoom="0.75">75%</button><button class="zoom-chip" data-zoom="1">100%</button><button class="zoom-chip" data-zoom="1.25">125%</button><button class="zoom-chip" data-zoom="1.5">150%</button>
+      </div>
+    </div>
+    <div class="a4-stage"><div class="a4-shell"><div class="report-frame" id="a4"><div class="report" id="report">
+      <div class="report-bg"><img class="report-watermark" id="pWatermark" alt=""></div>
+      <div class="report-content">
+        <div class="refno" id="pReportNoField" data-report-no="true" contenteditable="true" spellcheck="true" aria-label="Report Number"><span class="refno-label" id="pReportNoLabel">REPORT NO.:</span><span class="refno-value" id="pReportNoValue"></span></div>
+        <section class="letterhead keep-together">
+          <img class="letterhead-logo" id="pLogo" alt="Shree Aditya Geo Tech logo" src="">
+          <div class="letterhead-name" data-a4-key="letterhead-name" contenteditable="true">SHREE ADITYA GEO TECH</div>
+          <div class="letterhead-line" data-a4-key="letterhead-line" contenteditable="true">SURVEYORS • ARCHITECTS • INTERIORS • ENGINEERS • BUILDERS</div>
+          <div class="letterhead-contact" data-a4-key="letterhead-contact" contenteditable="true">Visakhapatnam • Andhra Pradesh • India</div>
+        </section>
+
+        <div class="title keep-together" data-a4-key="title" contenteditable="true">SURVEY REPORT</div>
+
+        <section class="class-details-output keep-together"><div class="class-details-table" id="pClassDetails"></div></section>
+        <section class="details keep-together">
+          <div class="label" data-a4-key="label-report-date" contenteditable="true">Report Date</div><div class="colon" data-a4-key="colon-report-date" contenteditable="true">:</div><div class="value" id="pReportDate" data-bind="reportDate" contenteditable="true"></div>
+          <div class="label" data-a4-key="label-survey-date" contenteditable="true">Survey Date</div><div class="colon" data-a4-key="colon-survey-date" contenteditable="true">:</div><div class="value" id="pSurveyDate" data-bind="surveyDate" contenteditable="true"></div>
+        </section>
+
+        <div class="section-title keep-together" data-a4-key="section-observations" contenteditable="true">1. OBSERVATIONS:-</div>
+        <div class="observations" id="pObs" contenteditable="true" data-bind="observations"></div>
+
+        <div class="data-tables">
+          <section class="table-block keep-together"><div class="coords-title" data-a4-key="coords-title" contenteditable="true">2. GEO CO-ORDINATES</div><div><table class="coord-table resizable-table" data-table-key="geo"><thead><tr><th contenteditable="true" data-table-head="geo" data-head-index="0" data-a4-key="coord-col-0"></th><th contenteditable="true" data-table-head="geo" data-head-index="1" data-a4-key="coord-col-1"></th><th contenteditable="true" data-table-head="geo" data-head-index="2" data-a4-key="coord-col-2"></th></tr></thead><tbody id="pCoords"></tbody></table></div></section>
+          <section class="table-block keep-together"><div class="boundary-title" data-a4-key="boundary-title" contenteditable="true">3. SITE BOUNDARIES</div><div><table class="boundary-table resizable-table" data-table-key="boundary"><thead><tr><th contenteditable="true" data-table-head="boundary" data-head-index="0" data-a4-key="boundary-col-0"></th><th contenteditable="true" data-table-head="boundary" data-head-index="1" data-a4-key="boundary-col-1"></th></tr></thead><tbody>
+            <tr><td contenteditable="true" data-boundary-direction="0" data-a4-key="direction-0"></td><td contenteditable="true" id="pBoundaryEast" data-bind="boundaryEast"></td></tr>
+            <tr><td contenteditable="true" data-boundary-direction="1" data-a4-key="direction-1"></td><td contenteditable="true" id="pBoundaryWest" data-bind="boundaryWest"></td></tr>
+            <tr><td contenteditable="true" data-boundary-direction="2" data-a4-key="direction-2"></td><td contenteditable="true" id="pBoundaryNorth" data-bind="boundaryNorth"></td></tr>
+            <tr><td contenteditable="true" data-boundary-direction="3" data-a4-key="direction-3"></td><td contenteditable="true" id="pBoundarySouth" data-bind="boundarySouth"></td></tr>
+          </tbody></table></div></section>
+        </div>
+
+        <div class="section-title keep-together" style="margin-top:12px" data-a4-key="section-conclusion" contenteditable="true">4. CONCLUSION / CERTIFICATION</div>
+        <div class="declaration" id="pDeclaration" contenteditable="true" data-bind="declaration"></div>
+
+        <div class="document-end keep-together">
+          <section class="verification keep-together">
+            <canvas class="qr" id="qr" width="1200" height="1200"></canvas>
+            <div class="verified" data-a4-key="qr-verified" contenteditable="true">SCAN TO VERIFY • DIGITALLY VERIFIED</div>
+            <div class="vcode" id="pVCode" data-a4-key="qr-code" contenteditable="true">Generate QR</div>
+            <div class="vfirm" id="pVFirm" data-a4-key="qr-firm" contenteditable="true"></div>
+            <div class="vsign" id="pVSign" data-a4-key="qr-sign" contenteditable="true"></div>
+            <div class="vstatus" data-a4-key="qr-status" contenteditable="true">A4 PDF • FLATTENED OUTPUT</div>
+          </section>
+        </div>
+      </div>
+    </div></div></div></div>
+  </main>
+
+  <aside class="panel right-panel" aria-label="A4 modification controls">
+    <div class="card">
+      <h3>View &amp; Auto Layout</h3>
+      <div class="actions"><button class="btn btn-secondary" id="fitA4">Fit A4</button><button class="btn btn-primary" id="autoArrange">Auto Arrange</button><button class="btn btn-secondary full" id="autoAlign">Auto Align</button></div>
+      <p class="note">Automatic layout keeps the A4 page inside the default 15 / 15 / 15 / 15 mm physical margins and auto-fits tables to their font/content.</p>
+    </div>
+
+    <div class="card">
+      <h3>Selected Field Typography</h3>
+      <div class="selected-note" id="selectedNote">Click any editable text on the A4 page.</div>
+      <div class="grid-2" style="margin-top:7px">
+        <div class="field"><label for="fontFamily">FONT FAMILY</label><select id="fontFamily"><option>Arial</option><option>Calibri</option><option>Georgia</option><option>Times New Roman</option><option>Inter</option><option>Courier New</option></select></div>
+        <div class="field"><label for="fontSize">FONT SIZE (PX)</label><input id="fontSize" min="8" max="72" step="1" type="number" value="12"></div>
+        <div class="field"><label for="fontWeight">FONT WEIGHT</label><select id="fontWeight"><option value="400">400 Regular</option><option value="500">500 Medium</option><option value="600">600 Semibold</option><option value="700">700 Bold</option><option value="800">800 Extra Bold</option><option value="900">900 Black</option></select></div>
+        <div class="field"><label for="lineHeight">LINE HEIGHT</label><input id="lineHeight" min="0.9" max="3" step="0.05" type="number" value="1.4"></div>
+        <div class="field"><label for="textColor">TEXT COLOR</label><input id="textColor" type="color" value="#111111"></div>
+        <div class="field"><label for="textAlign">JUSTIFICATION</label><select id="textAlign"><option value="left">Left</option><option value="center">Center</option><option value="right">Right</option><option value="justify">Justify</option></select></div>
+      </div>
+      <div class="style-btns"><button class="btn btn-secondary" id="bold">Bold</button><button class="btn btn-secondary" id="italic">Italic</button><button class="btn btn-secondary" id="underline">Underline</button><button class="btn btn-ghost" id="clearStyle">Clear</button></div>
+      <div class="style-btns"><button class="btn btn-secondary" id="copyStyle">Copy Style</button><button class="btn btn-secondary" id="pasteStyle">Paste Style</button><button class="btn btn-secondary" data-align="left">Left</button><button class="btn btn-secondary" data-align="center">Center</button></div>
+      <div class="style-btns"><button class="btn btn-secondary" data-align="right">Right</button><button class="btn btn-secondary" data-align="justify">Justify</button><span></span><span></span></div>
+      <div class="copy-status" id="copyStatus"></div>
+      <p class="note">Copy Style transfers formatting only; it never copies text.</p>
+    </div>
+
+    <div class="card">
+      <h3>Layout &amp; Tables</h3>
+      <div class="grid-2">
+        <div class="field"><label for="columnGap">COLUMN GAP (PX)</label><input id="columnGap" min="6" max="30" type="number" value="12"></div>
+        <div class="field"><label for="sectionSpacing">SECTION SPACING (PX)</label><input id="sectionSpacing" min="4" max="28" type="number" value="8"></div>
+      </div>
+      <div class="divider"></div>
+      <div class="grid-2">
+        <div class="field"><label for="geoRowHeight">GEO ROW HEIGHT</label><input id="geoRowHeight" min="18" max="55" type="number" value="24"></div>
+        <div class="field"><label for="boundaryRowHeight">BOUNDARY ROW HEIGHT</label><input id="boundaryRowHeight" min="18" max="55" type="number" value="24"></div>
+        <div class="field"><label for="geoCol1">GEO POINT COL %</label><input id="geoCol1" min="10" max="45" type="number" value="20"></div>
+        <div class="field"><label for="boundaryCol1">BOUNDARY DIR %</label><input id="boundaryCol1" min="15" max="45" type="number" value="24"></div>
+        <div class="field"><label for="geoFontSize">GEO BODY FONT</label><input id="geoFontSize" min="8" max="36" type="number" value="12"></div>
+        <div class="field"><label for="boundaryFontSize">BOUNDARY BODY FONT</label><input id="boundaryFontSize" min="8" max="36" type="number" value="12"></div>
+        <div class="field"><label for="headerFontSize">TABLE HEADER FONT</label><input id="headerFontSize" min="8" max="36" type="number" value="14"></div>
+        <div class="field"><label for="cellPadding">CELL PADDING (PX)</label><input id="cellPadding" min="0" max="16" type="number" value="4"></div>
+        <div class="field"><label for="wrapMode">WRAPPING</label><select id="wrapMode"><option value="anywhere">Auto wrap</option><option value="break-word">Word wrap</option><option value="normal">No forced wrap</option></select></div>
+      </div>
+      <div class="actions" style="margin-top:7px"><button class="btn btn-secondary full" id="autoFitTables">Auto Fit Tables to Font</button></div>
+      <p class="note">All table typography, padding, wrapping, row sizing and primary column proportions are editable. Auto Fit removes fixed row heights and sizes rows to the selected font/content.</p>
+    </div>
+
+    <div class="card">
+      <h3>Branding &amp; Watermark</h3>
+      <div class="file-row"><label class="btn btn-secondary btn-small" for="logoUpload">Upload Logo</label><input id="logoUpload" type="file" accept="image/*"><span class="file-name" id="logoFileName">No logo</span></div>
+      <div class="grid-2" style="margin-top:7px">
+        <div class="field"><label for="logoSize">LOGO SIZE (MM)</label><input id="logoSize" min="5" max="50" step="1" type="number" value="16"></div>
+        <div class="field"><label for="logoOpacity">LOGO OPACITY %</label><input id="logoOpacity" min="0" max="100" step="1" type="number" value="100"></div>
+      </div>
+      <button class="btn btn-danger" id="removeLogo" style="width:100%;margin-top:7px">Remove Logo</button>
+      <div class="divider"></div>
+      <div class="toggle"><span class="toggle-label">ENABLE PAGE WATERMARK</span><label class="switch"><input type="checkbox" id="watermarkEnabled"><span class="slider"></span></label></div>
+      <div class="file-row"><label class="btn btn-secondary btn-small" for="watermarkUpload">Upload Watermark</label><input id="watermarkUpload" type="file" accept="image/*"><span class="file-name" id="watermarkFileName">No watermark</span></div>
+      <div class="grid-2" style="margin-top:7px">
+        <div class="field"><label for="watermarkSize">SIZE (MM)</label><input id="watermarkSize" min="20" max="180" type="number" value="75"></div>
+        <div class="field"><label for="watermarkOpacity">OPACITY %</label><input id="watermarkOpacity" min="0" max="100" type="number" value="12"></div>
+        <div class="field"><label for="watermarkX">CENTER X %</label><input id="watermarkX" min="0" max="100" type="number" value="50"></div>
+        <div class="field"><label for="watermarkY">CENTER Y %</label><input id="watermarkY" min="0" max="100" type="number" value="55"></div>
+      </div>
+      <div class="actions" style="margin-top:7px"><button class="btn btn-secondary" id="resetWatermark">Reset Watermark</button><button class="btn btn-danger" id="removeWatermark">Remove Watermark</button></div>
+      <p class="note">Logo is anchored top-left. Watermark is a separate page background and never paints inside the QR verification block.</p>
+    </div>
+
+    <div class="card">
+      <h3>A4 Margins &amp; QR Position</h3>
+      <div class="grid-2">
+        <div class="field"><label for="marginTop">TOP (MM)</label><input id="marginTop" min="5" max="40" step="1" type="number" value="15"></div>
+        <div class="field"><label for="marginRight">RIGHT (MM)</label><input id="marginRight" min="5" max="40" step="1" type="number" value="15"></div>
+        <div class="field"><label for="marginBottom">BOTTOM (MM)</label><input id="marginBottom" min="5" max="50" step="1" type="number" value="15"></div>
+        <div class="field"><label for="marginLeft">LEFT (MM)</label><input id="marginLeft" min="5" max="40" step="1" type="number" value="15"></div>
+      </div>
+      <div class="divider"></div>
+      <div class="grid-2">
+        <div class="field"><label for="qrX">QR RIGHT OFFSET (MM)</label><input id="qrX" min="-60" max="60" step="1" type="number" value="15"></div>
+        <div class="field"><label for="qrY">QR BOTTOM OFFSET (MM)</label><input id="qrY" min="-60" max="60" step="1" type="number" value="15"></div>
+      </div>
+      <p class="note">QR is fixed at 25 × 25 mm. Right/bottom offsets are measured from the QR itself to the page edges. Negative values move the QR beyond the corresponding page edge. Default: 15 / 15 mm.</p>
+      <div class="divider"></div>
+      <div class="grid-2">
+        <div class="field"><label for="refnoTop">REPORT NO. TOP OFFSET (MM)</label><input id="refnoTop" min="0" max="60" step="1" type="number" value="8"></div>
+        <div class="field"><label for="refnoRight">REPORT NO. RIGHT OFFSET (MM)</label><input id="refnoRight" min="0" max="60" step="1" type="number" value="8"></div>
+      </div>
+      <p class="note">REPORT NO. is a separate identifier from DOCUMENT NO. Edit it directly on the A4 header. Default top/right offset: 8 / 8 mm.</p>
+    </div>
+  </aside>
+</div>
+
+<script>
+(() => {
+  'use strict';
+  const APP_VERSION='2.4.1';
+  const DRAFT_KEY='sagt_a4_professional_v5';
+  const A4_W=793.7008, A4_H=1122.5197;
+  const MARGIN={top:15,right:15,bottom:15,left:15};
+  const LIBS={
+    jsPDF:['https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js','https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js'],
+    html2canvas:['https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js','https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js'],
+    qrcode:['https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js','https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js']
+  };
+  const $=id=>document.getElementById(id);
+  const clone=v=>typeof structuredClone==='function'?structuredClone(v):JSON.parse(JSON.stringify(v));
+  const clamp=(v,min,max,fallback)=>{const n=Number(v);return Number.isFinite(n)?Math.min(max,Math.max(min,n)):fallback};
+  const esc=v=>String(v??'').replace(/[&<>\"]|\\/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\\':'&#92;','"':'&quot;'}[m]));
+  const textOf=el=>String(el?.innerText??'').replace(/\u00a0/g,' ').replace(/\r/g,'').trim();
+  const today=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
+  const isDate=v=>/^\d{4}-\d{2}-\d{2}$/.test(String(v||''));
+  const dataUrlName=dataUrl=>dataUrl?'Uploaded image':'No file';
+  function setStatus(message,error=false){const e=$('status');if(!e)return;e.textContent=String(message||'');e.className='status '+(error?'error':'success')}
+  function randomCode(){try{const a=new Uint8Array(6);crypto.getRandomValues(a);return 'SAGT-'+Array.from(a,x=>x.toString(16).padStart(2,'0')).join('').toUpperCase()}catch(_){return 'SAGT-'+Date.now().toString(36).toUpperCase()}}
+  async function loadLib(name){const ok=()=>name==='jsPDF'?!!(window.jspdf&&typeof window.jspdf.jsPDF==='function'):name==='html2canvas'?typeof window.html2canvas==='function':typeof window.qrcode==='function';if(ok())return true;for(const url of LIBS[name]){const loaded=await new Promise(resolve=>{const s=document.createElement('script');let done=false;const timer=setTimeout(()=>{if(!done){done=true;resolve(false)}},8000);s.src=url;s.onload=()=>{if(done)return;done=true;clearTimeout(timer);resolve(ok())};s.onerror=()=>{if(done)return;done=true;clearTimeout(timer);resolve(false)};document.head.appendChild(s)});if(loaded)return true}return ok()}
+  async function loadAll(names){const out={};for(const n of names)out[n]=await loadLib(n);return out}
+  async function sha256(bytes){const data=bytes instanceof Uint8Array?bytes:new Uint8Array(bytes);if(window.crypto?.subtle){const h=await crypto.subtle.digest('SHA-256',data);return Array.from(new Uint8Array(h),b=>b.toString(16).padStart(2,'0')).join('')}let h1=0x811c9dc5;for(const b of data)h1=(Math.imul(h1^b,16777619))>>>0;return h1.toString(16).padStart(8,'0').repeat(8)}
+  function normalizeImage(file){return new Promise((resolve,reject)=>{if(!file) return reject(new Error('No image selected.'));if(!file.type.startsWith('image/'))return reject(new Error('Please select an image file.'));const fr=new FileReader();fr.onerror=()=>reject(new Error('Unable to read image.'));fr.onload=()=>{const img=new Image();img.onerror=()=>reject(new Error('Unable to decode image.'));img.onload=()=>{const max=1400,scale=Math.min(1,max/Math.max(img.naturalWidth||1,img.naturalHeight||1)),w=Math.max(1,Math.round((img.naturalWidth||1)*scale)),h=Math.max(1,Math.round((img.naturalHeight||1)*scale));const c=document.createElement('canvas');c.width=w;c.height=h;const ctx=c.getContext('2d');ctx.drawImage(img,0,0,w,h);resolve(c.toDataURL('image/png'))};img.src=String(fr.result)};fr.readAsDataURL(file)})}
+
+  const DEFAULT_DATA={
+    documentNo:'',reportNo:'',reportDate:today(),surveyDate:today(),surveyNo:'52/PART',surveyType:'BOUNDARY / LAYOUT SURVEY',applicant:'GADDIPALLI SATYAVATHI',nature:'BUILT UP',assessmentNo:'',electricity:'116582R009002722',extent:'56.66 Sq.Yds',village:'RUSHIKONDA',mandal:'VISAKHAPATNAM (RURAL)',boundaryEast:'VACANT (Plot No-149)',boundaryWest:'VACANT (Plot No-147)',boundaryNorth:'VACANT (Plot No-131)',boundarySouth:'EXISTING 30’ ROAD',observations:'The Survey was done in the presence of applicant in the applied site and extent.\n\nOn ground extent as per survey is 56.66 Sq.Yds in Sy.No 52 / Part in RUSHIKONDA Village, VISAKHAPATNAM (RURAL) Mandal.\n\nTotal extent recorded as 56.66 Sq.Yds.',declaration:'This Survey report does not confer any title or ownership on the said land. It is issued for the purpose of survey, demarcation and documentation as requested by the applicant.'
+  };
+  const DEFAULT_COORDS=[{lat:'17.784941',lon:'83.381459'},{lat:'17.784911',lon:'83.381540'},{lat:'17.784868',lon:'83.381522'},{lat:'',lon:''}];
+  const DEFAULT_TABLE_TEXT={geoHeaders:['POINTS','LATITUDE','LONGITUDE'],boundaryHeaders:['DIRECTION','BOUNDARY DETAILS'],directions:['EAST','WEST','NORTH','SOUTH']};
+  const DEFAULT_LAYOUT={zoom:'fit',columnGap:12,sectionSpacing:8,margins:{top:15,right:15,bottom:15,left:15},qr:{x:15,y:15},refno:{top:8,right:8}};
+  const DEFAULT_TABLE={geoRowHeight:0,boundaryRowHeight:0,geoCol1:20,boundaryCol1:24,geoFontSize:12,boundaryFontSize:12,headerFontSize:14,cellPadding:4,wrap:'anywhere'};
+  const DEFAULT_WATERMARK={enabled:false,dataUrl:'',sizeMm:75,opacity:12,x:50,y:55};
+  const DEFAULT_LOGO={dataUrl:'',sizeMm:16,opacity:100};
+  const DEFAULT_TEXTS={'ref-label':'REPORT NO.:','letterhead-name':'SHREE ADITYA GEO TECH','letterhead-line':'SURVEYORS • ARCHITECTS • INTERIORS • ENGINEERS • BUILDERS','letterhead-contact':'Visakhapatnam • Andhra Pradesh • India','title':'SURVEY REPORT','label-report-date':'Report Date','colon-report-date':':','label-survey-date':'Survey Date','colon-survey-date':':','section-observations':'1. OBSERVATIONS:-','coords-title':'2. GEO CO-ORDINATES','boundary-title':'3. SITE BOUNDARIES','section-conclusion':'4. CONCLUSION / CERTIFICATION','qr-verified':'SCAN TO VERIFY • DIGITALLY VERIFIED','qr-status':'A4 PDF • FLATTENED OUTPUT','qr-firm':'SAGT • VERIFIED DATA','qr-sign-prefix':'Hash:','coord-col-0':'POINTS','coord-col-1':'LATITUDE','coord-col-2':'LONGITUDE','boundary-col-0':'DIRECTION','boundary-col-1':'BOUNDARY DETAILS','direction-0':'EAST','direction-1':'WEST','direction-2':'NORTH','direction-3':'SOUTH'};
+  const state={data:clone(DEFAULT_DATA),coords:clone(DEFAULT_COORDS),tableText:clone(DEFAULT_TABLE_TEXT),layout:clone(DEFAULT_LAYOUT),table:clone(DEFAULT_TABLE),styles:{},texts:clone(DEFAULT_TEXTS),watermark:clone(DEFAULT_WATERMARK),logo:clone(DEFAULT_LOGO),qr:{code:'',payload:'',hash:'',generatedAt:'',fingerprint:''}};
+  let selected=null,copiedStyle=null,draftTimer=0,generating=false;
+  function ensureDocumentNo(){if(!String(state.data.documentNo||'').trim())state.data.documentNo='SAGT-DOC-'+Date.now().toString(36).toUpperCase()}
+  function ensureReportNo(){if(!String(state.data.reportNo||'').trim())state.data.reportNo='SAGT-RPT-'+Date.now().toString(36).toUpperCase()}
+  function ensureIdentifiers(){ensureDocumentNo();ensureReportNo()}
+  function keyOf(el){return el?.dataset?.a4Key||el?.id||''}
+  function saveDraft(){setStatus('Draft kept in the current editor session. Use JSON Export for durable storage.');}
+  function scheduleDraft(){clearTimeout(draftTimer);draftTimer=setTimeout(saveDraft,500)}
+  function exportState(){ensureIdentifiers();return {app:'SAGT_A4_SURVEY_REPORT',version:APP_VERSION,exportedAt:new Date().toISOString(),data:clone(state.data),coords:clone(state.coords),tableText:clone(state.tableText),layout:clone(state.layout),table:clone(state.table),styles:clone(state.styles),texts:clone(state.texts),watermark:clone(state.watermark),logo:clone(state.logo),qr:{code:state.qr.code,payload:state.qr.payload,hash:state.qr.hash,fingerprint:state.qr.fingerprint||''}}}
+  function normalizeImported(obj){if(!obj||typeof obj!=='object')throw new Error('Invalid JSON project file.');const legacyData=obj.data||{};const migratedData={...legacyData};const importedLayout=obj.layout||{};const out={data:{...clone(DEFAULT_DATA),...migratedData},coords:Array.isArray(obj.coords)&&obj.coords.length?obj.coords.slice(0,200).map(c=>({lat:String(c?.lat??''),lon:String(c?.lon??'')})):clone(DEFAULT_COORDS),tableText:{...clone(DEFAULT_TABLE_TEXT),...(obj.tableText||{})},layout:{...clone(DEFAULT_LAYOUT),...importedLayout,margins:{...clone(DEFAULT_LAYOUT.margins),...(importedLayout.margins||{})},qr:{...clone(DEFAULT_LAYOUT.qr),...(importedLayout.qr||{})}},table:{...clone(DEFAULT_TABLE),...(obj.table||{})},styles:{...(obj.styles||{})},texts:{...clone(DEFAULT_TEXTS),...(obj.texts||{})},watermark:{...clone(DEFAULT_WATERMARK),...(obj.watermark||{})},logo:{...clone(DEFAULT_LOGO),...(obj.logo||{})},qr:{code:String(obj?.qr?.code||''),payload:String(obj?.qr?.payload||''),hash:String(obj?.qr?.hash||''),fingerprint:String(obj?.qr?.fingerprint||'')}};out.coords=out.coords.map(c=>({lat:String(c.lat||''),lon:String(c.lon||'')}));out.watermark.enabled=!!out.watermark.enabled;out.watermark.opacity=clamp(out.watermark.opacity,0,100,12);out.watermark.sizeMm=clamp(out.watermark.sizeMm,20,180,75);out.watermark.x=clamp(out.watermark.x,0,100,50);out.watermark.y=clamp(out.watermark.y,0,100,55);out.logo.sizeMm=clamp(out.logo.sizeMm,5,50,16);out.logo.opacity=clamp(out.logo.opacity,0,100,100);out.layout.qr=out.layout.qr||clone(DEFAULT_LAYOUT.qr);out.layout.qr.x=clamp(out.layout.qr.x,-60,60,15);out.layout.qr.y=clamp(out.layout.qr.y,-60,60,15);if(Number(out.layout.qr.x)===0&&Number(out.layout.qr.y)===0){out.layout.qr.x=15;out.layout.qr.y=15}out.layout.refno={...clone(DEFAULT_LAYOUT.refno),...(importedLayout.refno||{})};out.layout.refno.top=clamp(out.layout.refno.top,0,60,8);out.layout.refno.right=clamp(out.layout.refno.right,0,60,8);out.table.geoRowHeight=Number(out.table.geoRowHeight)||0;out.table.boundaryRowHeight=Number(out.table.boundaryRowHeight)||0;out.table.geoFontSize=clamp(out.table.geoFontSize,8,36,12);out.table.boundaryFontSize=clamp(out.table.boundaryFontSize,8,36,12);out.table.headerFontSize=clamp(out.table.headerFontSize,8,36,14);out.table.cellPadding=clamp(out.table.cellPadding,0,16,4);out.table.wrap=['anywhere','break-word','normal'].includes(out.table.wrap)?out.table.wrap:'anywhere';return out}
+  function applyImported(obj){const out=normalizeImported(obj);Object.assign(state,out);ensureIdentifiers();renderAll();saveDraft();setStatus('JSON project imported successfully.')}
+  function resetAll(){Object.assign(state,{data:clone(DEFAULT_DATA),coords:clone(DEFAULT_COORDS),tableText:clone(DEFAULT_TABLE_TEXT),layout:clone(DEFAULT_LAYOUT),table:clone(DEFAULT_TABLE),styles:{},texts:clone(DEFAULT_TEXTS),watermark:clone(DEFAULT_WATERMARK),logo:clone(DEFAULT_LOGO),qr:{code:'',payload:'',hash:'',generatedAt:'',fingerprint:''}});ensureIdentifiers();renderAll();saveDraft();setStatus('Document reset to defaults.')}
+
+  const CLASS_FIELDS=[
+    ['documentNo','DOCUMENT NO.'],['applicant','NAME OF THE APPLICANT'],['nature','NATURE OF SITE'],['assessmentNo','ASSESSMENT NO.'],['electricity','ELECTRICITY BILL NO.'],['surveyNo','APPLIED SURVEY NO.'],['extent','APPLIED EXTENT'],['village','VILLAGE NAME'],['mandal','MANDAL NAME'],['surveyType','SURVEY TYPE']
+  ];
+  CLASS_FIELDS.forEach(([key,label])=>{if(!Object.prototype.hasOwnProperty.call(state.texts,'label:'+key))state.texts['label:'+key]=label;if(!Object.prototype.hasOwnProperty.call(state.texts,'colon:'+key))state.texts['colon:'+key]=':'});
+  function renderClassDetails(){const host=$('pClassDetails');host.innerHTML=CLASS_FIELDS.map(([key,label])=>{const lk='label:'+key,ck='colon:'+key;const labelText=state.texts[lk]??label;const colonText=state.texts[ck]??':';return `<div class="label" data-a4-key="${esc(lk)}" contenteditable="true">${esc(labelText)}</div><div class="colon" data-a4-key="${esc(ck)}" contenteditable="true">${esc(colonText)}</div><div class="value" contenteditable="true" data-bind="${esc(key)}" data-a4-key="field:${esc(key)}">${esc(state.data[key]||'')}</div>`}).join('')}
+  function renderCoords(){const tb=$('pCoords');tb.innerHTML=state.coords.map((c,i)=>{const n=state.texts[`geo:num:${i}`]??String(i+1);return `<tr><td contenteditable="true" data-a4-key="geo:num:${i}">${esc(n)}</td><td contenteditable="true" data-coord-index="${i}" data-coord-field="lat" data-a4-key="geo:lat:${i}">${esc(c.lat)}</td><td contenteditable="true" data-coord-index="${i}" data-coord-field="lon" data-a4-key="geo:lon:${i}">${esc(c.lon)}</td></tr>`}).join('')}
+  function applyTableText(){document.querySelectorAll('[data-table-head]').forEach(th=>{const k=th.dataset.tableHead,idx=Number(th.dataset.headIndex),key=k==='geo'?`coord-col-${idx}`:`boundary-col-${idx}`;const fallback=(k==='geo'?state.tableText.geoHeaders:state.tableText.boundaryHeaders)[idx]||'';th.textContent=state.texts[key]??fallback});document.querySelectorAll('[data-boundary-direction]').forEach(td=>{const idx=Number(td.dataset.boundaryDirection),key=`direction-${idx}`;const fallback=state.tableText.directions[idx]||'';td.textContent=state.texts[key]??fallback})}
+  function simpleBindings(){const ids=['pDocumentNo','pBoundaryEast','pBoundaryWest','pBoundaryNorth','pBoundarySouth'];for(const id of ids){const el=$(id);if(el){const key=el.dataset.bind||'documentNo';el.textContent=state.data[key]||''}}const ref=$('pReportNoField');if(ref){const label=state.texts['ref-label']||'REPORT NO.:';const value=state.data.reportNo||'';$('pReportNoLabel').textContent=label;$('pReportNoValue').textContent=value;ref.setAttribute('contenteditable','true');ref.dataset.identifier='reportNo';ref.dataset.a4Key='reportNo';} $('pReportDate').textContent=state.data.reportDate||'';$('pSurveyDate').textContent=state.data.surveyDate||'';const obs=$('pObs');obs.innerHTML=String(state.data.observations||'').split(String.fromCharCode(10)+String.fromCharCode(10)).filter(Boolean).map(p=>`<p>${esc(p).split(String.fromCharCode(10)).join('<br>')}</p>`).join('');$('pDeclaration').innerHTML=esc(state.data.declaration||'').split(String.fromCharCode(10)).join('<br>')}
+  function applyTexts(){document.querySelectorAll('[data-a4-key]').forEach(el=>{const k=el.dataset.a4Key;if(k&&k!=='documentNo'&&k!=='refno'&&k!=='reportNo'&&Object.prototype.hasOwnProperty.call(state.texts,k))el.innerText=state.texts[k]});document.querySelectorAll('.report [data-bind]').forEach(el=>{if(el.dataset.bind&&el.dataset.bind!=='observations'&&el.dataset.bind!=='declaration')el.textContent=state.data[el.dataset.bind]||''})}
+  function saveStyle(el){const k=keyOf(el);if(!k)return;const cs=getComputedStyle(el);state.styles[k]={fontFamily:cs.fontFamily,fontSize:cs.fontSize,fontWeight:cs.fontWeight,fontStyle:cs.fontStyle,textDecoration:cs.textDecorationLine,color:cs.color,textAlign:cs.textAlign,lineHeight:cs.lineHeight}}
+  function applyStyles(){document.querySelectorAll('.report [data-a4-key]').forEach(el=>{const s=state.styles[keyOf(el)];if(!s)return;for(const [p,v] of Object.entries(s))if(v)el.style[p]=v})}
+  function applyMargins(){const m=state.layout.margins||DEFAULT_LAYOUT.margins;const r=document.documentElement;r.style.setProperty('--top',clamp(m.top,5,40,15)*96/25.4+'px');r.style.setProperty('--right',clamp(m.right,5,40,15)*96/25.4+'px');r.style.setProperty('--bottom',clamp(m.bottom,5,50,15)*96/25.4+'px');r.style.setProperty('--left',clamp(m.left,5,40,15)*96/25.4+'px')}
+  function applyLayout(){const d=document.querySelector('.data-tables');if(d)d.style.gap=`${clamp(state.layout.columnGap,6,30,12)}px`;document.querySelectorAll('.section-title').forEach((el,i)=>{if(i===0)el.style.marginTop=`${clamp(state.layout.sectionSpacing,4,28,8)}px`;else el.style.marginTop='12px'})}
+  function applyTableSettings(){
+    const t=state.table;
+    const geo=document.querySelector('.coord-table'),bd=document.querySelector('.boundary-table');
+    const apply=(table,bodySize,primaryCol,columns)=>{
+      if(!table)return;
+      table.style.tableLayout='auto';
+      table.style.fontSize=`${clamp(bodySize,8,36,12)}px`;
+      table.querySelectorAll('th').forEach(c=>{c.style.fontSize=`${clamp(t.headerFontSize,8,36,14)}px`;c.style.padding=`${clamp(t.cellPadding,0,16,4)}px`;c.style.whiteSpace='normal';c.style.overflowWrap=t.wrap==='normal'?'normal':t.wrap;c.style.wordBreak=t.wrap==='anywhere'?'break-word':'normal'});
+      table.querySelectorAll('td').forEach(c=>{c.style.fontSize=`${clamp(bodySize,8,36,12)}px`;c.style.padding=`${clamp(t.cellPadding,0,16,4)}px`;c.style.whiteSpace='normal';c.style.overflowWrap=t.wrap==='normal'?'normal':t.wrap;c.style.wordBreak=t.wrap==='anywhere'?'break-word':'normal'});
+      table.querySelectorAll('tr').forEach(r=>{r.style.height=t[table.dataset.tableKey==='geo'?'geoRowHeight':'boundaryRowHeight']>0?`${t[table.dataset.tableKey==='geo'?'geoRowHeight':'boundaryRowHeight']}px`:'auto';r.style.minHeight='0'});
+      const cells=table.tHead?.rows[0]?.cells||[];
+      if(cells.length&&primaryCol){cells[0].style.width=`${clamp(primaryCol,10,45,20)}%`;}
+      if(table.dataset.tableKey==='geo'&&cells.length===3){cells[1].style.width='40%';cells[2].style.width='40%';}
+      if(table.dataset.tableKey==='boundary'&&cells.length===2){cells[1].style.width=`${100-clamp(primaryCol,15,45,24)}%`;}
+    };
+    apply(geo,t.geoFontSize,t.geoCol1,3);
+    apply(bd,t.boundaryFontSize,t.boundaryCol1,2);
+  }
+  function applyLogo(){const img=$('pLogo');if(!state.logo.dataUrl){img.removeAttribute('src');img.style.display='none';return}img.src=state.logo.dataUrl;img.style.display='block';img.style.width=`${clamp(state.logo.sizeMm,5,50,16)}mm`;img.style.height=`${clamp(state.logo.sizeMm,5,50,16)}mm`;img.style.opacity=String(clamp(state.logo.opacity,0,100,100)/100);$('logoFileName').textContent=dataUrlName(state.logo.dataUrl)}
+  function applyQrPosition(){const box=document.querySelector('.verification'),qr=document.querySelector('.verification .qr');if(!box||!qr)return;const q=state.layout.qr||DEFAULT_LAYOUT.qr;const right=clamp(q.x,-60,60,15),bottom=clamp(q.y,-60,60,15);box.style.right='0';box.style.bottom='0';box.style.top='0';box.style.left='0';box.style.setProperty('--qr-right',`${right}mm`);box.style.setProperty('--qr-bottom',`${bottom}mm`);qr.style.right=`${right}mm`;qr.style.bottom=`${bottom}mm`;qr.style.margin='0'}
+  function applyRefNoPosition(){const ref=$('pReportNoField');if(!ref)return;const r=state.layout.refno||DEFAULT_LAYOUT.refno;ref.style.top=`${clamp(r.top,0,60,8)}mm`;ref.style.right=`${clamp(r.right,0,60,8)}mm`;ref.style.left='auto';ref.style.bottom='auto';ref.style.zIndex='50';ref.style.display='block';ref.style.visibility='visible'}
+  function applyWatermark(){const img=$('pWatermark');if(!state.watermark.enabled||!state.watermark.dataUrl){img.removeAttribute('src');img.style.display='none';$('watermarkFileName').textContent=state.watermark.dataUrl?'Uploaded image':'No watermark';$('watermarkEnabled').checked=false;return}img.src=state.watermark.dataUrl;img.style.display='block';img.style.width=`${clamp(state.watermark.sizeMm,20,180,75)}mm`;img.style.height=`${clamp(state.watermark.sizeMm,20,180,75)}mm`;img.style.left=`${clamp(state.watermark.x,0,100,50)}%`;img.style.top=`${clamp(state.watermark.y,0,100,55)}%`;img.style.opacity=String(clamp(state.watermark.opacity,0,100,12)/100);$('watermarkEnabled').checked=true;$('watermarkFileName').textContent='Uploaded image'}
+  function syncControls(){const t=state.table,l=state.layout,w=state.logo,m=state.watermark,mg=l.margins||DEFAULT_LAYOUT.margins,q=l.qr||DEFAULT_LAYOUT.qr;$('columnGap').value=l.columnGap;$('sectionSpacing').value=l.sectionSpacing;$('geoRowHeight').value=t.geoRowHeight;$('boundaryRowHeight').value=t.boundaryRowHeight;$('geoCol1').value=t.geoCol1;$('boundaryCol1').value=t.boundaryCol1;$('geoFontSize').value=t.geoFontSize;$('boundaryFontSize').value=t.boundaryFontSize;$('headerFontSize').value=t.headerFontSize;$('cellPadding').value=t.cellPadding;$('wrapMode').value=t.wrap;$('logoSize').value=w.sizeMm;$('logoOpacity').value=w.opacity;$('watermarkSize').value=m.sizeMm;$('watermarkOpacity').value=m.opacity;$('watermarkX').value=m.x;$('watermarkY').value=m.y;$('watermarkEnabled').checked=!!(m.enabled&&m.dataUrl);$('marginTop').value=mg.top;$('marginRight').value=mg.right;$('marginBottom').value=mg.bottom;$('marginLeft').value=mg.left;$('qrX').value=q.x;$('qrY').value=q.y;const rn=l.refno||DEFAULT_LAYOUT.refno;$('refnoTop').value=rn.top;$('refnoRight').value=rn.right}
+  function renderAll(){ensureIdentifiers();renderClassDetails();renderCoords();applyTableText();simpleBindings();applyTexts();applyStyles();applyLayout();applyTableSettings();applyMargins();applyLogo();applyWatermark();applyQrPosition();applyRefNoPosition();syncControls();updateQrUI();markEditable();fitA4()}
+  function markEditable(){document.querySelectorAll('.report [contenteditable="true"]').forEach((el,i)=>{if(!el.dataset.a4Key)el.dataset.a4Key=el.id||`${el.className||'field'}:${i}`;el.spellcheck=true})}
+
+  function fitA4(){const wrap=document.querySelector('.preview-panel');let s=1;if(state.layout.zoom==='fit'){const availW=Math.max(220,wrap.clientWidth-30),availH=Math.max(260,wrap.clientHeight-70);s=Math.min(1,availW/A4_W,availH/A4_H)}else s=Number(state.layout.zoom)||1;document.documentElement.style.setProperty('--a4-scale',String(s));document.documentElement.style.setProperty('--a4-dw',A4_W*s+'px');document.documentElement.style.setProperty('--a4-dh',A4_H*s+'px')}
+  function autoArrange(){state.layout.columnGap=12;state.layout.sectionSpacing=8;state.table.geoRowHeight=0;state.table.boundaryRowHeight=0;applyLayout();applyTableSettings();applyMargins();applyQrPosition();fitA4();syncControls();saveDraft();setStatus('A4 automatically arranged with font-aware table wrapping and auto row sizing.')}
+  function setSelected(el){if(selected)selected.removeAttribute('data-selected');selected=el||null;if(selected)selected.setAttribute('data-selected','true');syncStylePanel()}
+  function syncStylePanel(){if(!selected){$('selectedNote').textContent='Click any editable text on the A4 page.';return}const cs=getComputedStyle(selected);$('selectedNote').textContent=`Selected: ${selected.dataset.bind||selected.dataset.a4Key||selected.tagName.toLowerCase()}`;$('fontFamily').value=['Arial','Calibri','Georgia','Times New Roman','Inter','Courier New'].find(v=>cs.fontFamily.toLowerCase().includes(v.toLowerCase()))||'Arial';$('fontSize').value=parseFloat(cs.fontSize)||12;$('fontWeight').value=String(cs.fontWeight||400);$('lineHeight').value=cs.lineHeight==='normal'?1.4:parseFloat(cs.lineHeight)/parseFloat(cs.fontSize||10)||1.4;$('textColor').value=toHex(cs.color);$('textAlign').value=['left','center','right','justify'].includes(cs.textAlign)?cs.textAlign:'left'}
+  function toHex(rgb){const m=String(rgb||'').match(/rgba?\((\d+)[, ]+(\d+)[, ]+(\d+)/i);return m?'#'+[m[1],m[2],m[3]].map(x=>Number(x).toString(16).padStart(2,'0')).join(''):'#111111'}
+  function applyStyle(prop,value){if(!selected)return;selected.style[prop]=value;saveStyle(selected);scheduleDraft();syncStylePanel()}
+  function toggleStyle(prop,onValue,offValue){if(!selected)return;const cs=getComputedStyle(selected);selected.style[prop]=cs[prop]===onValue?offValue:onValue;saveStyle(selected);scheduleDraft();syncStylePanel()}
+
+  function updateReportNo(value){state.data.reportNo=String(value||'').trim()}
+  function updateDocumentNo(value,source){state.data.documentNo=String(value||'').trim()}
+  function invalidateQr(){state.qr={code:'',payload:'',hash:'',generatedAt:'',fingerprint:''};const c=$('qr');if(c){c.getContext('2d').clearRect(0,0,c.width,c.height);delete c.dataset.payload}updateQrUI()}
+   function handleEdit(el){if(!el)return;if(el.matches('.refno')||el.closest?.('[data-report-no="true"]')){const raw=textOf(el),idx=raw.indexOf(':');if(idx>=0){const value=raw.slice(idx+1).trim();updateReportNo(value);state.texts['ref-label']=raw.slice(0,idx+1).trim()||'REPORT NO.:';}else if(raw.trim()){updateReportNo(raw)}simpleBindings();invalidateQr();scheduleDraft();return}const bind=el.dataset.bind;if(bind){if(bind==='documentNo'){updateDocumentNo(textOf(el),el)}else if(bind==='observations'||bind==='declaration'){state.data[bind]=textOf(el)}else if(bind==='reportDate'||bind==='surveyDate'){state.data[bind]=textOf(el)}else state.data[bind]=textOf(el)}else if(el.dataset.coordIndex!==undefined){const j=Number(el.dataset.coordIndex);const f=el.dataset.coordField;if(state.coords[j])state.coords[j][f]=textOf(el)}else if(el.dataset.tableHead){const j=Number(el.dataset.headIndex),k=el.dataset.tableHead==='geo'?'geoHeaders':'boundaryHeaders';state.tableText[k][j]=textOf(el);state.texts[el.dataset.a4Key]=textOf(el)}else if(el.dataset.boundaryDirection!==undefined){const j=Number(el.dataset.boundaryDirection);state.tableText.directions[j]=textOf(el);state.texts[el.dataset.a4Key]=textOf(el)}else if(el.dataset.a4Key){state.texts[el.dataset.a4Key]=textOf(el)}invalidateQr();scheduleDraft();}
+  document.addEventListener('input',e=>{const el=e.target?.closest?.('.report [contenteditable="true"]');if(!el)return;handleEdit(el)});
+  document.addEventListener('blur',e=>{const el=e.target?.closest?.('.report [contenteditable="true"]');if(!el)return;handleEdit(el);if(el!==selected)saveStyle(el)},true);
+  document.addEventListener('click',e=>{const el=e.target?.closest?.('.report [contenteditable="true"]');if(el)setSelected(el)});
+
+  function buildQrBase(){ensureIdentifiers();const d=state.data,clean=v=>String(v??'').replace(/[|\r\n]+/g,' ').replace(/\s+/g,' ').trim(),clip=(v,n)=>clean(v).slice(0,n);return ['SAGT SURVEY VERIFICATION','DOC:'+clip(d.documentNo,24),'REPORT:'+clip(d.reportNo,24),'DATE:'+clip(d.reportDate,10),'SURVEY:'+clip(d.surveyNo,24),'NAME:'+clip(d.applicant,28),'EXT:'+clip(d.extent,18),'VILL:'+clip(d.village,18),'MANDAL:'+clip(d.mandal,22),'ORG:SHREE ADITYA GEO TECH'].join('|')}
+  async function drawQr(payload){if(!(await loadLib('qrcode')))throw new Error('QR generator library unavailable. Please open with internet access or bundle the QR library.');const c=$('qr'),ctx=c.getContext('2d');let qr=null,lastErr=null;for(const ec of ['M','Q','L']){try{const q=window.qrcode(0,ec);q.addData(payload,'Byte');q.make();const n=q.getModuleCount(),quiet=4,cell=Math.floor(c.width/(n+quiet*2));if(cell>=8){qr=q;break}lastErr=new Error('QR payload is too dense at 25 mm.')}catch(err){lastErr=err}}if(!qr)throw lastErr||new Error('Unable to create a scannable QR code.');const n=qr.getModuleCount(),quiet=4,size=c.width,cell=Math.floor(size/(n+quiet*2)),actual=(n+quiet*2)*cell,off=Math.floor((size-actual)/2);ctx.setTransform(1,0,0,1,0,0);ctx.imageSmoothingEnabled=false;ctx.fillStyle='#fff';ctx.fillRect(0,0,size,size);ctx.fillStyle='#000';for(let r=0;r<n;r++)for(let col=0;col<n;col++)if(qr.isDark(r,col))ctx.fillRect(off+(col+quiet)*cell,off+(r+quiet)*cell,cell,cell);c.dataset.modules=n;c.dataset.cell=cell;c.dataset.payload=payload;c.dataset.scanSizeMm='25';return true}
+  async function generateQr(){try{ensureIdentifiers();const code=randomCode(),base=buildQrBase()+'|CODE:'+code,hash=await sha256(new TextEncoder().encode(base)),payload=base+'|HASH:'+hash.slice(0,16).toUpperCase();state.qr={code,payload,hash,generatedAt:new Date().toISOString(),fingerprint:buildQrBase()};await drawQr(payload);$('pVCode').textContent=code;$('pVFirm').textContent='SAGT • VERIFIED DATA';$('pVSign').textContent='Hash: '+hash.slice(0,16).toUpperCase();updateQrUI();scheduleDraft();setStatus('QR generated successfully • 25 × 25 mm • vital information encoded.')}catch(err){setStatus(err.message||'QR generation failed.',true);throw err}}
+  function updateQrUI(){const has=!!state.qr.payload&&!!$('qr')?.dataset?.payload;if(has){$('qrStatusBadge').textContent='QR generated';$('qrStatusBadge').className='badge on';$('qrInfo').textContent='25 × 25 mm • vital data encoded'}else{$('qrStatusBadge').textContent='QR not generated';$('qrStatusBadge').className='badge off';$('qrInfo').textContent='25 × 25 mm • mandatory • click Generate QR'}}
+
+  const EXPORT_DPI=300;
+  const CSS_DPI=96;
+  const EXPORT_SCALE=EXPORT_DPI/CSS_DPI;
+  const EXPORT_W_PX=Math.round((210/25.4)*EXPORT_DPI);
+  const EXPORT_H_PX=Math.round((297/25.4)*EXPORT_DPI);
+  async function waitForCloneAssets(root){
+    if(document.fonts&&document.fonts.ready){try{await document.fonts.ready}catch(_){} }
+    const imgs=[...root.querySelectorAll('img')].filter(img=>img.getAttribute('src'));
+    await Promise.all(imgs.map(img=>new Promise(resolve=>{
+      if(img.complete&&img.naturalWidth){resolve();return}
+      const done=()=>{img.removeEventListener('load',done);img.removeEventListener('error',done);resolve()};
+      img.addEventListener('load',done,{once:true});img.addEventListener('error',done,{once:true});
+      setTimeout(done,15000);
+    })));
+  }
+  async function renderFullCanvas(){
+    if(!(await loadLib('html2canvas')))throw new Error('PDF renderer unavailable. html2canvas could not be loaded. Open this HTML with internet access or bundle html2canvas locally.');
+    const original=$('report');
+    const cloneNode=original.cloneNode(true);
+    cloneNode.id='__sagt_export_report';
+    cloneNode.style.width=`${A4_W}px`;
+    cloneNode.style.height=`${A4_H}px`;
+    cloneNode.style.minHeight=`${A4_H}px`;
+    cloneNode.style.maxHeight=`${A4_H}px`;
+    cloneNode.style.boxSizing='border-box';
+    cloneNode.style.transform='none';
+    cloneNode.style.position='fixed';
+    cloneNode.style.left='-100000px';
+    cloneNode.style.top='0';
+    cloneNode.style.margin='0';
+    cloneNode.style.boxShadow='none';
+    cloneNode.style.overflow='hidden';
+    document.body.appendChild(cloneNode);
+    try{
+      // Remove all editor-only selection/focus state from the export clone.
+      cloneNode.querySelectorAll('[data-selected]').forEach(el=>el.removeAttribute('data-selected'));
+      cloneNode.querySelectorAll(':focus').forEach(el=>{try{el.blur()}catch(_){}});
+      try{window.getSelection()?.removeAllRanges()}catch(_){}
+      // cloneNode() does not copy canvas bitmap pixels. Copy each live canvas
+      // into the export clone before html2canvas captures the page.
+      const sourceCanvases=[...original.querySelectorAll('canvas')];
+      const clonedCanvases=[...cloneNode.querySelectorAll('canvas')];
+      sourceCanvases.forEach((src,i)=>{const dst=clonedCanvases[i];if(!dst)return;dst.width=src.width;dst.height=src.height;const dctx=dst.getContext('2d');if(dctx)dctx.drawImage(src,0,0)});
+      await waitForCloneAssets(cloneNode);
+      cloneNode.querySelectorAll('[data-selected]').forEach(el=>el.removeAttribute('data-selected'));
+      try{window.getSelection()?.removeAllRanges()}catch(_){}
+      await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+      const rendered=await window.html2canvas(cloneNode,{
+        width:A4_W,
+        height:A4_H,
+        scale:EXPORT_SCALE,
+        backgroundColor:'#fff',
+        useCORS:true,
+        allowTaint:false,
+        logging:false,
+        imageTimeout:15000,
+        foreignObjectRendering:false,
+        windowWidth:Math.ceil(A4_W),
+        windowHeight:Math.ceil(A4_H),
+        scrollX:0,
+        scrollY:0
+      });
+      // html2canvas can floor a fractional CSS-pixel height (1122.5197px) to 3507px.
+      // Normalize once, after rendering, to the mathematically exact 300-DPI A4 raster.
+      const canvas=document.createElement('canvas');
+      canvas.width=EXPORT_W_PX;
+      canvas.height=EXPORT_H_PX;
+      const ctx=canvas.getContext('2d',{alpha:false});
+      ctx.imageSmoothingEnabled=true;
+      ctx.imageSmoothingQuality='high';
+      ctx.fillStyle='#fff';
+      ctx.fillRect(0,0,canvas.width,canvas.height);
+      ctx.drawImage(rendered,0,0,rendered.width,rendered.height,0,0,EXPORT_W_PX,EXPORT_H_PX);
+      validateExportCanvas(canvas);
+      return canvas;
+    }finally{cloneNode.remove()}
+  }
+  function validateQrCanvas(){const c=$('qr');if(!c||c.width<1||c.height<1)throw new Error('QR validation failed: QR canvas is missing.');const ctx=c.getContext('2d',{willReadFrequently:true});if(!ctx)throw new Error('QR validation failed: QR canvas context is unavailable.');const data=ctx.getImageData(0,0,c.width,c.height).data;let dark=0;for(let i=0;i<data.length;i+=4){if(data[i]<40&&data[i+1]<40&&data[i+2]<40&&data[i+3]>0){dark++;if(dark>100)break}}if(dark<=100)throw new Error('QR validation failed: QR canvas is blank or contains no QR modules.');}
+  function validateExportCanvas(canvas){
+    if(!canvas||canvas.width!==EXPORT_W_PX||canvas.height!==EXPORT_H_PX){
+      throw new Error(`A4 raster validation failed. Required exact 300-DPI A4 raster is ${EXPORT_W_PX} × ${EXPORT_H_PX}px; received ${canvas?.width||0} × ${canvas?.height||0}px.`);
+    }
+    const ratio=canvas.width/canvas.height;
+    const expected=210/297;
+    if(Math.abs(ratio-expected)>0.0005)throw new Error('A4 aspect-ratio validation failed.');
+  }
+  async function renderPages(){
+    const full=await renderFullCanvas();
+    return [full];
+  }
+  function readPdfObjects(raw){
+    const objects=[];
+    const re=/(\d+)\s+0\s+obj\s*([\s\S]*?)\s*endobj/g;
+    let m;
+    while((m=re.exec(raw))){objects.push({id:Number(m[1]),body:m[2]})}
+    return objects;
+  }
+  function getPdfObject(raw,id){
+    const re=new RegExp('(?:^|\\n)'+id+'\\s+0\\s+obj\\s*([\\s\\S]*?)\\s*endobj');
+    const m=raw.match(re);
+    return m?m[1]:null;
+  }
+  function decodeAsciiHex(data){
+    const clean=data.replace(/\\s+/g,'').replace(/>.*$/,'');
+    let out='';
+    for(let i=0;i+1<clean.length;i+=2){out+=String.fromCharCode(parseInt(clean.slice(i,i+2),16))}
+    return out;
+  }
+  function extractPageContent(raw,obj){
+    const body=obj.body;
+    const refs=[...body.matchAll(/\/Contents\s+(\d+)\s+0\s+R/g)].map(m=>Number(m[1]));
+    if(!refs.length)throw new Error('Flattened PDF validation failed: page content stream reference missing.');
+    let combined='';
+    for(const id of refs){
+      const streamObj=getPdfObject(raw,id);
+      if(!streamObj)throw new Error('Flattened PDF validation failed: page content stream missing.');
+      const sm=streamObj.match(/stream\r?\n([\s\S]*?)\r?\nendstream/);
+      if(!sm)throw new Error('Flattened PDF validation failed: page content stream unreadable.');
+      const dict=streamObj.slice(0,streamObj.indexOf('stream')).trim();
+      let stream=sm[1];
+      if(/\/Filter\s*\/ASCIIHexDecode/.test(dict)) stream=decodeAsciiHex(stream);
+      else if(/\/Filter\s*\/FlateDecode/.test(dict)) throw new Error('Flattened PDF validation failed: unsupported compressed page-content stream.');
+      combined+='\n'+stream;
+    }
+    return combined;
+  }
+  function validatePdf(bytes){
+    const u=new Uint8Array(bytes);
+    if(u.length<1000)throw new Error('Flattened PDF validation failed: generated PDF is empty.');
+    const latin=new TextDecoder('latin1');
+    const head=latin.decode(u.slice(0,5));
+    if(head!=='%PDF-')throw new Error('Flattened PDF validation failed: invalid PDF header.');
+    const tail=latin.decode(u.slice(Math.max(0,u.length-4096)));
+    if(!/%%EOF\s*$/.test(tail))throw new Error('Flattened PDF validation failed: incomplete PDF.');
+
+    // Validate the actual page structure, not arbitrary PDF/image bytes.
+    // PNG/JPEG streams are binary and may contain byte sequences resembling
+    // PDF text operators; those bytes are never inspected for text here.
+    const raw=latin.decode(u);
+    const objects=readPdfObjects(raw);
+    const pages=objects.filter(o=>/\/Type\s*\/Page(?:\s|\/|>>)/.test(o.body));
+    if(pages.length!==1)throw new Error(`Flattened PDF validation failed: expected exactly 1 A4 page, found ${pages.length}.`);
+
+    const page=pages[0];
+    const media=page.body.match(/\/MediaBox\s*\[\s*0\s+0\s+([\d.]+)\s+([\d.]+)\s*\]/);
+    if(!media)throw new Error('Flattened PDF validation failed: A4 MediaBox missing.');
+    // PDF MediaBox coordinates are points even when jsPDF is configured with unit:'mm'.
+    const pwPt=Number(media[1]),phPt=Number(media[2]);
+    const expectedWPt=210*72/25.4,expectedHPt=297*72/25.4;
+    if(Math.abs(pwPt-expectedWPt)>0.5||Math.abs(phPt-expectedHPt)>0.5)throw new Error(`Flattened PDF validation failed: expected A4 MediaBox ${expectedWPt.toFixed(3)} × ${expectedHPt.toFixed(3)} pt, received ${pwPt.toFixed(3)} × ${phPt.toFixed(3)} pt.`);
+    const pw=210,ph=297;
+
+    const stream=extractPageContent(raw,page);
+    // Only actual page-content operators count as selectable text.
+    // The export contract permits image painting operators only, plus graphics
+    // state/transform operators generated by jsPDF.
+    const textOps=/(?:^|[\s\n])(?:BT|ET|Tf|Tj|TJ|Td|TD|Tm|T\*)\b/;
+    if(textOps.test(stream))throw new Error('Flattened PDF validation failed: actual selectable text operators detected in the page content stream.');
+    if(!/\/I\d+\s+Do\b/.test(stream))throw new Error('Flattened PDF validation failed: raster image invocation missing.');
+
+    // Confirm an image XObject exists and is actually referenced by the page.
+    const imageObjects=objects.filter(o=>/\/Subtype\s*\/Image\b/.test(o.body));
+    if(imageObjects.length<1)throw new Error('Flattened PDF validation failed: no raster image XObject found.');
+
+    // PDF resource dictionaries may be inline OR indirect objects. jsPDF is
+    // allowed to emit either form, so never assume /XObject is embedded in
+    // the page object itself.
+    const resolveRef=(body,key)=>{
+      const m=String(body||'').match(new RegExp('\\/'+key+'\\s+(\\d+)\\s+0\\s+R'));
+      return m?getPdfObject(raw,Number(m[1])):null;
+    };
+    const resourcesInline=page.body.match(/\/Resources\s*<<([\s\S]*?)>>/);
+    const resourcesRef=resolveRef(page.body,'Resources');
+    const resourcesBody=resourcesInline?resourcesInline[1]:resourcesRef;
+    if(!resourcesBody)throw new Error('Flattened PDF validation failed: page resource dictionary missing.');
+
+    const xobjectInline=resourcesBody.match(/\/XObject\s*<<([\s\S]*?)>>/);
+    const xobjectRefId=String(resourcesBody).match(/\/XObject\s+(\d+)\s+0\s+R/);
+    const xobjectBody=xobjectInline?xobjectInline[1]:(xobjectRefId?getPdfObject(raw,Number(xobjectRefId[1])):null);
+    if(!xobjectBody)throw new Error('Flattened PDF validation failed: page image resource dictionary missing.');
+
+    const imageRefs=[...String(xobjectBody).matchAll(/\/(I\d+)\s+(\d+)\s+0\s+R/g)];
+    if(!imageRefs.length)throw new Error('Flattened PDF validation failed: page does not reference a raster image XObject.');
+    const referencedImageIds=new Set(imageRefs.map(m=>Number(m[2])));
+    const embeddedImageIds=new Set(imageObjects.map(o=>o.id));
+    if(!imageRefs.some(m=>embeddedImageIds.has(Number(m[2]))))throw new Error('Flattened PDF validation failed: referenced raster image XObject is not embedded.');
+
+    // Fonts may exist in a PDF resource dictionary even when unused. Their mere
+    // presence does NOT make the document selectable, so they are deliberately
+    // not treated as a failure. Only real text operators in the page stream fail.
+    return {pages:1,widthMm:pw,heightMm:ph,imageObjects:imageObjects.length,textOperators:false};
+  }
+  async function generatePdf(){
+    if(generating)return;
+    generating=true;
+    $('generatePdf').disabled=true;
+    try{
+      ensureDocumentNo();
+      if(!validateDocument())return;
+      if(!state.qr.payload||state.qr.fingerprint!==buildQrBase())throw new Error('QR is not current. Click Generate QR before exporting the PDF.');
+      validateQrCanvas();
+      applyQrPosition();
+      applyRefNoPosition();
+      const libs=await loadAll(['jsPDF','html2canvas']);
+      if(!libs.jsPDF||!libs.html2canvas)throw new Error('PDF engine unavailable. Please open this HTML with internet access or bundle the required libraries.');
+      setStatus(`Rendering exact A4 preview at ${EXPORT_DPI} DPI…`);
+      const pages=await renderPages();
+      if(pages.length!==1)throw new Error('A4 export validation failed: preview/export page count mismatch.');
+      const page=pages[0];
+      validateExportCanvas(page);
+      const {jsPDF}=window.jspdf;
+      const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:[210,297],compress:false,putOnlyUsedFonts:true,precision:12});
+      pdf.setProperties({title:'SAGT Survey Report '+state.data.documentNo,author:state.data.org||'SHREE ADITYA GEO TECH',creator:'SAGT Professional A4 Survey Report Studio'});
+      // EXACT FLATTENED EXPORT: one 2480×3508 raster image covers the complete A4 page.
+      // No jsPDF text, HTML, SVG, annotation, or form APIs are used here.
+      pdf.addImage(page.toDataURL('image/png'),'PNG',0,0,210,297,undefined,'SLOW');
+      const bytes=pdf.output('arraybuffer');
+      validatePdf(bytes);
+      const blob=new Blob([bytes],{type:'application/pdf'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+      a.href=url;a.download=`SAGT-${state.qr.code||randomCode()}.pdf`;document.body.appendChild(a);a.click();a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url),1500);
+      setStatus(`PDF generated • exact A4 preview • ${EXPORT_W_PX} × ${EXPORT_H_PX}px raster • ${EXPORT_DPI} DPI • image-only flattened PDF • non-selectable text.`);
+    }catch(err){setStatus(err.message||'PDF generation failed.',true)}
+    finally{generating=false;$('generatePdf').disabled=false}
+  }
+
+  function validateDocument(){const d=state.data,missing=[];if(!String(d.documentNo||'').trim())missing.push('Document No.');if(!String(d.reportNo||'').trim())missing.push('Report No.');if(!String(d.applicant||'').trim())missing.push('Applicant');if(!isDate(d.reportDate))missing.push('Report Date');if(!isDate(d.surveyDate))missing.push('Survey Date');const valid=state.coords.some(c=>Number.isFinite(Number(c.lat))&&Number.isFinite(Number(c.lon))&&Number(c.lat)>=-90&&Number(c.lat)<=90&&Number(c.lon)>=-180&&Number(c.lon)<=180);if(!valid)missing.push('Valid Coordinate');if(missing.length){setStatus('Validation failed • '+missing.join(' • '),true);return false}setStatus('Validation passed • document is ready for QR/PDF output.');return true}
+
+  $('saveDraft').addEventListener('click',()=>{saveDraft();setStatus('Draft kept in the current editor session. Use JSON Export for durable storage.')});
+  $('clearDraft').addEventListener('click',()=>{resetAll();setStatus('Current editor draft cleared.')});
+  $('reset').addEventListener('click',resetAll);
+  $('validate').addEventListener('click',validateDocument);
+  $('generateQr').addEventListener('click',()=>generateQr().catch(()=>{}));
+  $('generatePdf').addEventListener('click',generatePdf);
+  $('exportJson').addEventListener('click',()=>{try{const blob=new Blob([JSON.stringify(exportState(),null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`SAGT-project-${new Date().toISOString().slice(0,10)}.json`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);setStatus('JSON project exported successfully.')}catch(err){setStatus('JSON export failed.',true)}});
+  $('importJson').addEventListener('change',async e=>{const f=e.target.files?.[0];if(!f)return;try{const obj=JSON.parse(await f.text());applyImported(obj);$('jsonFileName').textContent=f.name}catch(err){setStatus(err.message||'JSON import failed.',true)}finally{e.target.value=''}});
+  $('addCoord').addEventListener('click',()=>{state.coords.push({lat:'',lon:''});renderCoords();applyTableText();applyStyles();applyTableSettings();markEditable();scheduleDraft();setStatus('Coordinate point added.')});
+  $('removeCoord').addEventListener('click',()=>{if(state.coords.length<=1){setStatus('At least one coordinate row is required.',true);return}state.coords.pop();renderCoords();applyTableText();applyStyles();applyTableSettings();markEditable();scheduleDraft();setStatus('Last coordinate point removed.')});
+  document.querySelectorAll('.zoom-chip').forEach(b=>b.addEventListener('click',()=>{state.layout.zoom=b.dataset.zoom;document.querySelectorAll('.zoom-chip').forEach(x=>x.classList.toggle('active',x===b));fitA4();scheduleDraft()}));
+  $('fitA4').addEventListener('click',()=>{state.layout.zoom='fit';document.querySelectorAll('.zoom-chip').forEach(x=>x.classList.toggle('active',x.dataset.zoom==='fit'));fitA4();scheduleDraft()});
+  $('autoArrange').addEventListener('click',autoArrange);$('autoAlign').addEventListener('click',autoArrange);
+  ['columnGap','sectionSpacing'].forEach(id=>$(id).addEventListener('input',()=>{state.layout[id]=Number($(id).value);applyLayout();scheduleDraft()}));
+  [['marginTop','top',5,40,15],['marginRight','right',5,40,15],['marginBottom','bottom',5,50,15],['marginLeft','left',5,40,15]].forEach(([id,k,min,max,fb])=>$(id).addEventListener('input',()=>{state.layout.margins=state.layout.margins||clone(DEFAULT_LAYOUT.margins);state.layout.margins[k]=clamp($(id).value,min,max,fb);applyMargins();fitA4();scheduleDraft()}));
+  [['qrX','x'],['qrY','y']].forEach(([id,k])=>$(id).addEventListener('input',()=>{state.layout.qr=state.layout.qr||clone(DEFAULT_LAYOUT.qr);state.layout.qr[k]=clamp($(id).value,-60,60,15);applyQrPosition();scheduleDraft()}));
+  [['refnoTop','top'],['refnoRight','right']].forEach(([id,k])=>$(id).addEventListener('input',()=>{state.layout.refno=state.layout.refno||clone(DEFAULT_LAYOUT.refno);state.layout.refno[k]=clamp($(id).value,0,60,8);applyRefNoPosition();scheduleDraft()}));
+  [['geoRowHeight','geoRowHeight'],['boundaryRowHeight','boundaryRowHeight'],['geoCol1','geoCol1'],['boundaryCol1','boundaryCol1'],['geoFontSize','geoFontSize'],['boundaryFontSize','boundaryFontSize'],['headerFontSize','headerFontSize'],['cellPadding','cellPadding']].forEach(([id,k])=>$(id).addEventListener('input',()=>{state.table[k]=Number($(id).value);applyTableSettings();scheduleDraft()}));$('wrapMode').addEventListener('change',()=>{state.table.wrap=$('wrapMode').value;applyTableSettings();scheduleDraft()});$('autoFitTables').addEventListener('click',()=>{state.table.geoRowHeight=0;state.table.boundaryRowHeight=0;applyTableSettings();syncControls();scheduleDraft();setStatus('Tables auto-fitted to current font, padding and content.')} );
+  [['fontFamily','fontFamily'],['fontSize','fontSize'],['fontWeight','fontWeight'],['lineHeight','lineHeight'],['textColor','color'],['textAlign','textAlign']].forEach(([id,p])=>$(id).addEventListener('input',()=>{if(!selected)return;let v=$(id).value;if(id==='fontSize')v=clamp(v,8,72,12)+'px';else if(id==='lineHeight')v=String(clamp(v,.9,3,1.4));selected.style[p]=v;saveStyle(selected);scheduleDraft()}));
+  $('bold').addEventListener('click',()=>toggleStyle('fontWeight','700','400'));$('italic').addEventListener('click',()=>toggleStyle('fontStyle','italic','normal'));$('underline').addEventListener('click',()=>toggleStyle('textDecoration','underline','none'));
+  $('clearStyle').addEventListener('click',()=>{if(!selected)return;selected.removeAttribute('style');delete state.styles[keyOf(selected)];syncStylePanel();scheduleDraft()});
+  $('copyStyle').addEventListener('click',()=>{if(!selected){$('copyStatus').textContent='Select a field first.';return}saveStyle(selected);copiedStyle=clone(state.styles[keyOf(selected)]||{});$('copyStatus').textContent='Style copied.'});
+  $('pasteStyle').addEventListener('click',()=>{if(!selected||!copiedStyle){$('copyStatus').textContent='Copy a style first.';return}for(const [p,v] of Object.entries(copiedStyle))selected.style[p]=v;saveStyle(selected);syncStylePanel();scheduleDraft();$('copyStatus').textContent='Style pasted.'});
+  document.querySelectorAll('[data-align]').forEach(b=>b.addEventListener('click',()=>applyStyle('textAlign',b.dataset.align)));
+  $('logoUpload').addEventListener('change',async e=>{try{state.logo.dataUrl=await normalizeImage(e.target.files?.[0]);applyLogo();saveDraft();setStatus('Logo uploaded.')}catch(err){setStatus(err.message,true)}});
+  $('removeLogo').addEventListener('click',()=>{state.logo=clone(DEFAULT_LOGO);applyLogo();saveDraft();setStatus('Logo removed.')});
+  $('logoSize').addEventListener('input',()=>{state.logo.sizeMm=clamp($('logoSize').value,5,50,16);applyLogo();scheduleDraft()});$('logoOpacity').addEventListener('input',()=>{state.logo.opacity=clamp($('logoOpacity').value,0,100,100);applyLogo();scheduleDraft()});
+  $('watermarkUpload').addEventListener('change',async e=>{try{state.watermark.dataUrl=await normalizeImage(e.target.files?.[0]);state.watermark.enabled=true;applyWatermark();saveDraft();setStatus('Background watermark uploaded and enabled.')}catch(err){setStatus(err.message,true)}});
+  $('removeWatermark').addEventListener('click',()=>{state.watermark=clone(DEFAULT_WATERMARK);applyWatermark();saveDraft();setStatus('Background watermark removed.')});
+  $('resetWatermark').addEventListener('click',()=>{const keep=state.watermark.dataUrl;state.watermark=clone(DEFAULT_WATERMARK);state.watermark.dataUrl=keep;applyWatermark();saveDraft();setStatus('Watermark settings reset.')});
+  $('watermarkEnabled').addEventListener('change',()=>{state.watermark.enabled=$('watermarkEnabled').checked&&!!state.watermark.dataUrl;applyWatermark();scheduleDraft()});
+  ['watermarkSize','watermarkOpacity','watermarkX','watermarkY'].forEach(id=>$(id).addEventListener('input',()=>{state.watermark.sizeMm=clamp($('watermarkSize').value,20,180,75);state.watermark.opacity=clamp($('watermarkOpacity').value,0,100,12);state.watermark.x=clamp($('watermarkX').value,0,100,50);state.watermark.y=clamp($('watermarkY').value,0,100,55);applyWatermark();scheduleDraft()}));
+  window.addEventListener('resize',fitA4,{passive:true});
+
+  try{ensureDocumentNo();renderAll()}catch(_){ensureDocumentNo();renderAll()}
+  window.SAGT_EXPORT_STATE=exportState;
+  document.querySelector('.zoom-chip[data-zoom="fit"]')?.classList.add('active');
+})();
+</script>
+</body>
+</html>
